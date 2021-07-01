@@ -12,18 +12,18 @@ class UserController extends Controller
     public function register(request $request)
     {
         $this->validate($request, [
-            'username'=>'required',
-            'password'=>'required|min:6'
+            'x-username'=>'required',
+            'x-password'=>'required|min:6'
            
         ]);
-        $username=$request->input('username');
-        $password=$request->input('password');
+        $username=$request->input('x-username');
+        $password=$request->input('x-password');
 
         $hasPassword=Hash::make($password);
 
         $user=User::create([
-            'username'=>$username,
-            'password'=>$hasPassword
+            'x-username'=>$username,
+            'x-password'=>$hasPassword
         ]);
 
         return response()->json([
@@ -34,19 +34,24 @@ class UserController extends Controller
     //proses login 
     public function login(request $request)
     {
-        $this->validate($request, [
-            'username' => 'required',
-            'password'=> 'required'
-        ]);
+        // $this->validate($request, [
+        //     'username' => 'required',
+        //     'password'=> 'required'
+        // ]);
 
-        $username=$request->header('username');
-        $password=$request->header('password');
+        $username=$request->header('x-username');
+        $password=$request->header('x-password');
 
-        $user=User::where('username', $username)->first();
+        $user=User::where('x-username', $username)->first();
 
         if(!$user){
             return response()->json([
-                "message"=>"login gagal"
+                "response"=>([
+                    
+                ]), "metadata"=>([
+                    "message"=>"Nama User Salah",
+                    "code"=>401
+                ])
             ], 401);
         }
 
@@ -54,17 +59,27 @@ class UserController extends Controller
 
         if (!$isValidPassword) {
             return response()->json([
-                'message'=>'loging gagal'
+                "response"=>([
+                    
+                ]), "metadata"=>([
+                    "message"=>"Pasword Salah",
+                    "code"=>401
+                ])
             ], 401);
         }
 
         $generateToken=bin2hex(random_bytes(40));
         $user->update([
-            'token'=>$generateToken
+            'x-token'=>$generateToken
         ]);
 
         return response()->json([
-            'message'=>$user->token
-        ]);
+            "response"=>([
+                "token"=>$generateToken
+            ]), "metadata"=>([
+                "message"=>"ok",
+                "code"=>200
+            ])
+        ], 200);
     }
 }
