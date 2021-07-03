@@ -17,3 +17,13 @@ $router->post('/produk', 'ProdukController@create');
 $router->post('/register', 'UserController@register');
 $router->get('/login', 'UserController@login');
 
+
+Route::post('getnoantrian', 'GetNoAntrian@Antrianbpjs');
+Route::post('statusantrian', 'StatusAntrian@statusantrian');
+Route::post('sisaantrian', 'StatusAntrian@sisaantrian');
+Route::post('batalantrian', 'StatusAntrian@batalantrian');
+Route::post('checkin', 'StatusAntrian@checkin');
+Route::post('getlistjadwaloperasi', 'StatusAntrian@Listjadwaoperasi');
+//Route::post('getrekapantrian', 'Rekapantrian@rekapantrian');
+
+
