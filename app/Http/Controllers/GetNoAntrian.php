@@ -17,6 +17,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 
 
 
@@ -97,7 +98,35 @@ class GetNoAntrian extends Controller
             ->select('namadokter')
             ->first();
 
-            
+            //cek peserta BPJS
+            $data = "13359";
+            $secretKey = "0vLCB9FAD2";
+            // Computes the timestamp
+            date_default_timezone_set('UTC');
+            $tStamp = strval(time()-strtotime('1970-01-01 00:00:00'));
+           // Computes the signature by hashing the salt with the secret key as the key
+            $signature = hash_hmac('sha256', $data."&".$tStamp, $secretKey, true);
+ 
+            $encodedSignature = base64_encode($signature);
+
+            $Xconsid=$data;
+            $Xtimestamp=$tStamp;
+            $Xsignature=$encodedSignature;
+
+            $kartu = $request->nomorkartu;
+
+
+                $vcpoli=Http::withHeaders([
+                    'X-cons-id'=>$Xconsid,
+                    'X-timestamp' => $Xtimestamp,
+                    'X-signature' => $Xsignature
+                ])
+                
+                
+                ->get('https://new-api.bpjs-kesehatan.go.id:8080/new-vclaim-rest/Peserta/nokartu/'.$kartu.'/tglSEP/'.$tanggal)
+                ->json();
+
+                $hasilcekpeserta = $vcpoli['metaData'] ['code'];
            
         // cek apakah ada no antri di hari yg sama (status ok)?
             if($validator->fails()) {
@@ -111,6 +140,16 @@ class GetNoAntrian extends Controller
                     ])
                 ]);
 
+            } elseif(  $hasilcekpeserta == 201 ){
+                return response()->json([
+                    "response"=>([
+                       
+                    ]), "metadata"=>([
+                        "message"=>"No Peserta Tidak ditemukan",
+                        "code"=>400
+                    ])
+                ]);
+
             }elseif (!preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/",$request->tanggalperiksa)){
                 return response()->json([
                     "response"=>([
@@ -120,7 +159,8 @@ class GetNoAntrian extends Controller
                         "code"=>400
                     ])
                 ]);
-            } elseif( $request->tanggalperiksa <= $dt  ){
+            
+            }elseif( $request->tanggalperiksa <= $dt  ){
                 return response()->json([
                     "response"=>([
                        
@@ -253,6 +293,9 @@ class GetNoAntrian extends Controller
                     "code"=>200
                 ])
             ]);
+
+            
+
             }
            
            

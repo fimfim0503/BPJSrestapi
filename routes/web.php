@@ -12,6 +12,7 @@
 */
 
 $router->get('/daftarproduk', 'ProdukController@index');
+$router->post('/akses', 'AksesvclaimController@akses');
 $router->post('/produk', 'ProdukController@create');
 
 $router->post('/register', 'UserController@register');

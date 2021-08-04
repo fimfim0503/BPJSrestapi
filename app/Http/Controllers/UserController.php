@@ -11,13 +11,17 @@ class UserController extends Controller
 {
     public function register(request $request)
     {
-        $this->validate($request, [
-            'x-username'=>'required',
-            'x-password'=>'required|min:6'
+        // $this->validate($request, [
+        //     'x-username'=>'required',
+        //     'x-password'=>'required|min:6'
            
-        ]);
-        $username=$request->input('x-username');
-        $password=$request->input('x-password');
+        // ]);
+        // $username=$request->input('x-username');
+        // $password=$request->input('x-password');
+        $username1="rsudrslametgarut";
+        $pass="12345678";
+        $username=$username1;
+        $password=$pass;
 
         $hasPassword=Hash::make($password);
 
